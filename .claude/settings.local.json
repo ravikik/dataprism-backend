@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Development/AI-Innovations/DataPrism/DataPrism-UI/src/services/**)",
+      "Read(//c/Development/AI-Innovations/DataPrism/DataPrism-UI/src/**)",
+      "Read(//c/Development/AI-Innovations/DataPrism/DataPrism-UI/**)",
+      "Bash(npx tsc:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Development\\AI-Innovations\\DataPrism\\DataPrism-Backend\\docs"
+    ]
+  }
+}

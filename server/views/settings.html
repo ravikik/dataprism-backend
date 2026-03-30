@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataPrism Settings - Admin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 1000px;
+      width: 100%;
+      padding: 40px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .status-banner {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-banner.tier1 {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .status-banner.tier2 {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    .status-banner.tier3 {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+    }
+
+    .status-icon {
+      font-size: 24px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 16px;
+      color: #666;
+      transition: all 0.3s;
+    }
+
+    .tab:hover {
+      color: #667eea;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .setting-group {
+      background: #f8f9fa;
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .setting-group h3 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .setting-group p {
+      color: #666;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group input[type="password"] {
+      font-family: 'Courier New', monospace;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 4px;
+      color: #999;
+      font-size: 12px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .btn-test {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-test:hover {
+      background: #218838;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .alert-info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        flex-wrap: wrap;
+      }
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .status-indicator.green {
+      background: #28a745;
+    }
+
+    .status-indicator.red {
+      background: #dc3545;
+    }
+
+    .status-indicator.yellow {
+      background: #ffc107;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚙️ DataPrism Settings</h1>
+      <p>Configure your DataPrism AI installation</p>
+    </div>
+
+    <div id="statusBanner" class="status-banner">
+      <div class="status-icon">ℹ️</div>
+      <div>
+        <strong>Loading configuration...</strong>
+      </div>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="ai">🤖 AI Configuration</button>
+      <button class="tab" data-tab="databricks">📊 Databricks</button>
+      <button class="tab" data-tab="aws">☁️ AWS</button>
+      <button class="tab" data-tab="oauth">🔐 OAuth</button>
+      <button class="tab" data-tab="cache">⚡ Caching</button>
+      <button class="tab" data-tab="advanced">🔧 Advanced</button>
+    </div>
+
+    <!-- AI Configuration Tab -->
+    <div id="ai" class="tab-content active">
+      <div class="setting-group">
+        <h3>
+          <span class="status-indicator red" id="status-ai"></span>
+          Anthropic Claude AI
+        </h3>
+        <p>Configure your Anthropic API key to enable AI-powered responses. Without this, DataPrism runs in demo mode with mock data.</p>
+        
+        <div class="form-group">
+          <label for="anthropicApiKey">API Key</label>
+          <input type="password" id="anthropicApiKey" placeholder="sk-ant-api03-..." />
+          <small>Get your API key from <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a></small>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-test" onclick="testConnection('anthropic')">Test Connection</button>
+          <button class="btn btn-primary" onclick="saveAISettings()">Save AI Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Databricks Tab -->
+    <div id="databricks" class="tab-content">
+      <div class="setting-group">
+        <h3>
+          <span class="status-indicator red" id="status-databricks"></span>
+          Databricks Connection
+        </h3>
+        <p>Configure Databricks workspace connection for live SQL execution against your data lakehouse.</p>
+        
+        <div class="form-group">
+          <label for="databricksHost">Workspace URL</label>
+          <input type="text" id="databricksHost" placeholder="https://your-workspace.cloud.databricks.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="databricksToken">Personal Access Token</label>
+          <input type="password" id="databricksToken" placeholder="dapi..." />
+          <small>Create a PAT in Databricks workspace settings</small>
+        </div>
+
+        <div class="form-group">
+          <label for="databricksWarehouse">SQL Warehouse ID</label>
+          <input type="text" id="databricksWarehouse" placeholder="3c90a2f2af1b..." />
+          <small>Find this in your SQL Warehouse connection details</small>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-test" onclick="testConnection('databricks')">Test Connection</button>
+          <button class="btn btn-primary" onclick="saveDatabricksSettings()">Save Databricks Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AWS Tab -->
+    <div id="aws" class="tab-content">
+      <div class="setting-group">
+        <h3>
+          <span class="status-indicator red" id="status-aws"></span>
+          AWS Configuration
+        </h3>
+        <p>Configure AWS credentials to enable infrastructure queries (EC2, S3, cost analysis, etc.)</p>
+        
+        <div class="form-group">
+          <label for="awsAccessKey">Access Key ID</label>
+          <input type="text" id="awsAccessKey" placeholder="AKIA..." />
+        </div>
+
+        <div class="form-group">
+          <label for="awsSecretKey">Secret Access Key</label>
+          <input type="password" id="awsSecretKey" placeholder="..." />
+        </div>
+
+        <div class="form-group">
+          <label for="awsRegion">Default Region</label>
+          <select id="awsRegion">
+            <option value="us-east-1">US East (N. Virginia)</option>
+            <option value="us-east-2">US East (Ohio)</option>
+            <option value="us-west-1">US West (N. California)</option>
+            <option value="us-west-2">US West (Oregon)</option>
+            <option value="eu-west-1">EU (Ireland)</option>
+            <option value="eu-central-1">EU (Frankfurt)</option>
+            <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+            <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+          </select>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-test" onclick="testConnection('aws')">Test Connection</button>
+          <button class="btn btn-primary" onclick="saveAWSSettings()">Save AWS Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OAuth Tab -->
+    <div id="oauth" class="tab-content">
+      <div class="setting-group">
+        <h3>
+          <span class="status-indicator red" id="status-oauth"></span>
+          Databricks OAuth 2.0
+        </h3>
+        <p>Configure OAuth for user-based authentication. This provides automatic token refresh and better security than PATs.</p>
+        
+        <div class="form-group">
+          <label for="oauthClientId">OAuth Client ID</label>
+          <input type="text" id="oauthClientId" placeholder="..." />
+        </div>
+
+        <div class="form-group">
+          <label for="oauthClientSecret">OAuth Client Secret</label>
+          <input type="password" id="oauthClientSecret" placeholder="..." />
+        </div>
+
+        <div class="form-group">
+          <label for="oauthRedirectUri">Redirect URI</label>
+          <input type="text" id="oauthRedirectUri" placeholder="http://localhost:5173/auth/callback" value="http://localhost:5173/auth/callback" />
+          <small>This must match the registered redirect URI in your Databricks OAuth app</small>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" onclick="saveOAuthSettings()">Save OAuth Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cache Tab -->
+    <div id="cache" class="tab-content">
+      <div class="setting-group">
+        <h3>
+          <span class="status-indicator red" id="status-redis"></span>
+          Redis Cache
+        </h3>
+        <p>Configure Redis for fast response caching. This dramatically improves performance for repeated queries.</p>
+        
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="redisHost">Redis Host</label>
+            <input type="text" id="redisHost" placeholder="localhost" />
+          </div>
+
+          <div class="form-group">
+            <label for="redisPort">Redis Port</label>
+            <input type="number" id="redisPort" placeholder="6379" value="6379" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="redisPassword">Redis Password (optional)</label>
+          <input type="password" id="redisPassword" placeholder="..." />
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-test" onclick="testConnection('redis')">Test Connection</button>
+          <button class="btn btn-primary" onclick="saveCacheSettings()">Save Cache Settings</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <h3>
+          <span class="status-indicator red" id="status-vectordb"></span>
+          Vector Database
+        </h3>
+        <p>Configure vector database for semantic query caching. Recommended: PostgreSQL with pgvector extension.</p>
+        
+        <div class="form-group">
+          <label for="vectorDbType">Vector DB Type</label>
+          <select id="vectorDbType" onchange="toggleVectorDbFields()">
+            <option value="pgvector">PostgreSQL pgvector</option>
+            <option value="pinecone">Pinecone (SaaS)</option>
+            <option value="qdrant">Qdrant</option>
+          </select>
+        </div>
+
+        <div id="postgresFields">
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="postgresHost">PostgreSQL Host</label>
+              <input type="text" id="postgresHost" placeholder="localhost" />
+            </div>
+
+            <div class="form-group">
+              <label for="postgresPort">PostgreSQL Port</label>
+              <input type="number" id="postgresPort" placeholder="5432" value="5432" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="postgresUser">PostgreSQL User</label>
+              <input type="text" id="postgresUser" placeholder="postgres" />
+            </div>
+
+            <div class="form-group">
+              <label for="postgresDatabase">PostgreSQL Database</label>
+              <input type="text" id="postgresDatabase" placeholder="dataprism" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="postgresPassword">PostgreSQL Password</label>
+            <input type="password" id="postgresPassword" placeholder="..." />
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="postgresSSL" />
+              Use SSL (required for AWS RDS and cloud databases)
+            </label>
+          </div>
+        </div>
+
+        <div id="pineconeFields" style="display: none;">
+          <div class="form-group">
+            <label for="pineconeApiKey">Pinecone API Key</label>
+            <input type="password" id="pineconeApiKey" placeholder="..." />
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="pineconeEnvironment">Environment</label>
+              <input type="text" id="pineconeEnvironment" placeholder="us-east-1-aws" />
+            </div>
+
+            <div class="form-group">
+              <label for="pineconeIndex">Index Name</label>
+              <input type="text" id="pineconeIndex" placeholder="dataprism-cache" />
+            </div>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" onclick="saveVectorDbSettings()">Save Vector DB Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Tab -->
+    <div id="advanced" class="tab-content">
+      <div class="setting-group">
+        <h3>⚙️ Server Configuration</h3>
+        
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="serverPort">Server Port</label>
+            <input type="number" id="serverPort" placeholder="3001" value="3001" />
+          </div>
+
+          <div class="form-group">
+            <label for="frontendUrl">Frontend URL</label>
+            <input type="text" id="frontendUrl" placeholder="http://localhost:5173" value="http://localhost:5173" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sessionSecret">Session Secret</label>
+          <input type="password" id="sessionSecret" placeholder="..." />
+          <small>Generate a strong random secret for production</small>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" onclick="saveServerSettings()">Save Server Settings</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <h3>🗑️ Danger Zone</h3>
+        <p>Reset all settings to use environment variables only. This action cannot be undone.</p>
+        
+        <div class="button-group">
+          <button class="btn btn-danger" onclick="resetSettings()">Reset All Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Load settings on page load
+    window.addEventListener('DOMContentLoaded', loadSettings);
+
+    async function loadSettings() {
+      try {
+        const [settings, status] = await Promise.all([
+          fetch(`${API_BASE}/api/settings`).then(r => r.json()),
+          fetch(`${API_BASE}/api/settings/status`).then(r => r.json())
+        ]);
+
+        // Populate form fields
+        document.getElementById('anthropicApiKey').value = settings.anthropicApiKey || '';
+        document.getElementById('databricksHost').value = settings.databricks?.host || '';
+        document.getElementById('databricksToken').value = settings.databricks?.token || '';
+        document.getElementById('databricksWarehouse').value = settings.databricks?.warehouseId || '';
+        document.getElementById('awsAccessKey').value = settings.aws?.accessKeyId || '';
+        document.getElementById('awsSecretKey').value = settings.aws?.secretAccessKey || '';
+        document.getElementById('awsRegion').value = settings.aws?.region || 'us-east-1';
+        document.getElementById('oauthClientId').value = settings.oauth?.clientId || '';
+        document.getElementById('oauthClientSecret').value = settings.oauth?.clientSecret || '';
+        document.getElementById('oauthRedirectUri').value = settings.oauth?.redirectUri || 'http://localhost:5173/auth/callback';
+        document.getElementById('redisHost').value = settings.cache?.redisHost || '';
+        document.getElementById('redisPort').value = settings.cache?.redisPort || 6379;
+        document.getElementById('redisPassword').value = settings.cache?.redisPassword || '';
+        document.getElementById('vectorDbType').value = settings.vectorDb?.type || 'pgvector';
+        document.getElementById('postgresHost').value = settings.vectorDb?.postgresHost || '';
+        document.getElementById('postgresPort').value = settings.vectorDb?.postgresPort || 5432;
+        document.getElementById('postgresUser').value = settings.vectorDb?.postgresUser || '';
+        document.getElementById('postgresPassword').value = settings.vectorDb?.postgresPassword || '';
+        document.getElementById('postgresDatabase').value = settings.vectorDb?.postgresDatabase || '';
+        document.getElementById('postgresSSL').checked = settings.vectorDb?.postgresSSL || false;
+        document.getElementById('pineconeApiKey').value = settings.vectorDb?.pineconeApiKey || '';
+        document.getElementById('pineconeEnvironment').value = settings.vectorDb?.pineconeEnvironment || '';
+        document.getElementById('pineconeIndex').value = settings.vectorDb?.pineconeIndex || '';
+        document.getElementById('serverPort').value = settings.server?.port || 3001;
+        document.getElementById('frontendUrl').value = settings.server?.frontendUrl || 'http://localhost:5173';
+        document.getElementById('sessionSecret').value = settings.server?.sessionSecret || '';
+
+        // Update status indicators
+        updateStatusIndicator('status-ai', status.hasAnthropicKey);
+        updateStatusIndicator('status-databricks', status.hasDatabricks);
+        updateStatusIndicator('status-aws', status.hasAWS);
+        updateStatusIndicator('status-oauth', status.hasOAuth);
+        updateStatusIndicator('status-redis', status.hasRedis);
+        updateStatusIndicator('status-vectordb', status.hasVectorDb);
+
+        // Update status banner
+        updateStatusBanner(status.tier);
+        
+        toggleVectorDbFields();
+      } catch (error) {
+        showAlert('Failed to load settings: ' + error.message, 'error');
+      }
+    }
+
+    function updateStatusIndicator(id, isConfigured) {
+      const indicator = document.getElementById(id);
+      if (indicator) {
+        indicator.className = 'status-indicator ' + (isConfigured ? 'green' : 'red');
+      }
+    }
+
+    function updateStatusBanner(tier) {
+      const banner = document.getElementById('statusBanner');
+      const messages = {
+        tier1: { icon: '✅', title: 'Tier 1: Full Mode', desc: 'Claude AI + Databricks + AWS - All features enabled', class: 'tier1' },
+        tier2: { icon: '⚡', title: 'Tier 2: AI Mode', desc: 'Claude AI enabled - Using mock data for queries', class: 'tier2' },
+        tier3: { icon: '⚠️', title: 'Tier 3: Demo Mode', desc: 'No API keys configured - Using mock NLP engine', class: 'tier3' }
+      };
+
+      const msg = messages[tier] || messages.tier3;
+      banner.className = `status-banner ${msg.class}`;
+      banner.innerHTML = `
+        <div class="status-icon">${msg.icon}</div>
+        <div>
+          <strong>${msg.title}</strong>
+          <div>${msg.desc}</div>
+        </div>
+      `;
+    }
+
+    function toggleVectorDbFields() {
+      const type = document.getElementById('vectorDbType').value;
+      document.getElementById('postgresFields').style.display = type === 'pgvector' ? 'block' : 'none';
+      document.getElementById('pineconeFields').style.display = type === 'pinecone' ? 'block' : 'none';
+    }
+
+    async function saveAISettings() {
+      const settings = {
+        anthropicApiKey: document.getElementById('anthropicApiKey').value
+      };
+
+      await saveSettings(settings, 'AI settings');
+    }
+
+    async function saveDatabricksSettings() {
+      const settings = {
+        databricks: {
+          host: document.getElementById('databricksHost').value,
+          token: document.getElementById('databricksToken').value,
+          warehouseId: document.getElementById('databricksWarehouse').value
+        }
+      };
+
+      await saveSettings(settings, 'Databricks settings');
+    }
+
+    async function saveAWSSettings() {
+      const settings = {
+        aws: {
+          accessKeyId: document.getElementById('awsAccessKey').value,
+          secretAccessKey: document.getElementById('awsSecretKey').value,
+          region: document.getElementById('awsRegion').value
+        }
+      };
+
+      await saveSettings(settings, 'AWS settings');
+    }
+
+    async function saveOAuthSettings() {
+      const settings = {
+        oauth: {
+          clientId: document.getElementById('oauthClientId').value,
+          clientSecret: document.getElementById('oauthClientSecret').value,
+          redirectUri: document.getElementById('oauthRedirectUri').value
+        }
+      };
+
+      await saveSettings(settings, 'OAuth settings');
+    }
+
+    async function saveCacheSettings() {
+      const settings = {
+        cache: {
+          redisHost: document.getElementById('redisHost').value,
+          redisPort: parseInt(document.getElementById('redisPort').value),
+          redisPassword: document.getElementById('redisPassword').value
+        }
+      };
+
+      await saveSettings(settings, 'Cache settings');
+    }
+
+    async function saveVectorDbSettings() {
+      const type = document.getElementById('vectorDbType').value;
+      const settings = {
+        vectorDb: {
+          type: type
+        }
+      };
+
+      if (type === 'pgvector') {
+        settings.vectorDb.postgresHost = document.getElementById('postgresHost').value;
+        settings.vectorDb.postgresPort = parseInt(document.getElementById('postgresPort').value);
+        settings.vectorDb.postgresUser = document.getElementById('postgresUser').value;
+        settings.vectorDb.postgresPassword = document.getElementById('postgresPassword').value;
+        settings.vectorDb.postgresDatabase = document.getElementById('postgresDatabase').value;
+        settings.vectorDb.postgresSSL = document.getElementById('postgresSSL').checked;
+      } else if (type === 'pinecone') {
+        settings.vectorDb.pineconeApiKey = document.getElementById('pineconeApiKey').value;
+        settings.vectorDb.pineconeEnvironment = document.getElementById('pineconeEnvironment').value;
+        settings.vectorDb.pineconeIndex = document.getElementById('pineconeIndex').value;
+      }
+
+      await saveSettings(settings, 'Vector DB settings');
+    }
+
+    async function saveServerSettings() {
+      const settings = {
+        server: {
+          port: parseInt(document.getElementById('serverPort').value),
+          frontendUrl: document.getElementById('frontendUrl').value,
+          sessionSecret: document.getElementById('sessionSecret').value
+        }
+      };
+
+      await saveSettings(settings, 'Server settings');
+    }
+
+    async function saveSettings(settings, description) {
+      try {
+        const response = await fetch(`${API_BASE}/api/settings`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settings)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to save settings');
+        }
+
+        showAlert(`${description} saved successfully!`, 'success');
+        await loadSettings();
+      } catch (error) {
+        showAlert('Error saving settings: ' + error.message, 'error');
+      }
+    }
+
+    async function testConnection(type) {
+      const configs = {
+        anthropic: { apiKey: document.getElementById('anthropicApiKey').value },
+        databricks: {
+          host: document.getElementById('databricksHost').value,
+          token: document.getElementById('databricksToken').value,
+          warehouseId: document.getElementById('databricksWarehouse').value
+        },
+        aws: {
+          accessKeyId: document.getElementById('awsAccessKey').value,
+          secretAccessKey: document.getElementById('awsSecretKey').value,
+          region: document.getElementById('awsRegion').value
+        },
+        redis: {
+          host: document.getElementById('redisHost').value,
+          port: parseInt(document.getElementById('redisPort').value),
+          password: document.getElementById('redisPassword').value
+        }
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/api/settings/test`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, config: configs[type] })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showAlert(`✓ ${result.message}`, 'success');
+        } else {
+          showAlert(`✗ ${result.error || 'Test failed'}`, 'error');
+        }
+      } catch (error) {
+        showAlert('Connection test failed: ' + error.message, 'error');
+      }
+    }
+
+    async function resetSettings() {
+      if (!confirm('Are you sure you want to reset all settings? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/settings`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to reset settings');
+        }
+
+        showAlert('Settings reset successfully. Using environment variables only.', 'success');
+        await loadSettings();
+      } catch (error) {
+        showAlert('Error resetting settings: ' + error.message, 'error');
+      }
+    }
+
+    function showAlert(message, type) {
+      const alert = document.getElementById('alert');
+      alert.className = `alert alert-${type} show`;
+      alert.textContent = message;
+      
+      setTimeout(() => {
+        alert.classList.remove('show');
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

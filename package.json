@@ -1,0 +1,37 @@
+{
+  "name": "dataprism-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch server/index.ts",
+    "start": "tsx server/index.ts",
+    "build:mcp": "echo MCP servers will be compiled on first use by tsx",
+    "mcp:databricks": "tsx server/mcp/databricks-server.ts",
+    "mcp:aws": "tsx server/mcp/aws-server.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@aws-sdk/client-cloudwatch": "^3.999.0",
+    "@aws-sdk/client-cost-explorer": "^3.999.0",
+    "@aws-sdk/client-ec2": "^3.999.0",
+    "@aws-sdk/client-lambda": "^3.999.0",
+    "@aws-sdk/client-rds": "^3.999.0",
+    "@aws-sdk/client-s3": "^3.999.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.18.0",
+    "@types/node": "^20.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
