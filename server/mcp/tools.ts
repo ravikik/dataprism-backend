@@ -1,6 +1,6 @@
-import type Anthropic from '@anthropic-ai/sdk';
+import type { Tool } from '../services/ai-client.js';
 
-export const TOOL_GET_SCHEMA_CONTEXT: Anthropic.Tool = {
+export const TOOL_GET_SCHEMA_CONTEXT: Tool = {
   name: 'get_schema_context',
   description:
     'Fetch table and column metadata for specified database schemas from Databricks Unity Catalog. Returns table names, column definitions, data types, and comments.',
@@ -18,7 +18,7 @@ export const TOOL_GET_SCHEMA_CONTEXT: Anthropic.Tool = {
   },
 };
 
-export const TOOL_EXECUTE_SQL: Anthropic.Tool = {
+export const TOOL_EXECUTE_SQL: Tool = {
   name: 'execute_sql',
   description:
     'Execute a SQL query on the Databricks SQL warehouse. Returns column names and row data. Use this to test or validate queries before presenting them to the user.',
@@ -34,7 +34,7 @@ export const TOOL_EXECUTE_SQL: Anthropic.Tool = {
   },
 };
 
-export const TOOL_SEARCH_TABLES: Anthropic.Tool = {
+export const TOOL_SEARCH_TABLES: Tool = {
   name: 'search_tables',
   description:
     'Search for tables in a Databricks Unity Catalog schema. Returns a list of table names with comments.',
@@ -54,7 +54,7 @@ export const TOOL_SEARCH_TABLES: Anthropic.Tool = {
   },
 };
 
-export const TOOL_DESCRIBE_AWS_RESOURCES: Anthropic.Tool = {
+export const TOOL_DESCRIBE_AWS_RESOURCES: Tool = {
   name: 'describe_aws_resources',
   description:
     'List and describe AWS resources in the connected account. Returns details about EC2 instances, S3 buckets, RDS databases, and Lambda functions.',
@@ -71,7 +71,7 @@ export const TOOL_DESCRIBE_AWS_RESOURCES: Anthropic.Tool = {
   },
 };
 
-export const TOOL_GET_AWS_HEALTH: Anthropic.Tool = {
+export const TOOL_GET_AWS_HEALTH: Tool = {
   name: 'get_aws_health',
   description:
     'Get AWS infrastructure health status including CloudWatch alarms and service availability.',
@@ -88,7 +88,7 @@ export const TOOL_GET_AWS_HEALTH: Anthropic.Tool = {
   },
 };
 
-export const TOOL_GET_AWS_COSTS: Anthropic.Tool = {
+export const TOOL_GET_AWS_COSTS: Tool = {
   name: 'get_aws_costs',
   description:
     'Get AWS cost and billing data. Returns spending breakdowns by service and trends.',
@@ -107,7 +107,7 @@ export const TOOL_GET_AWS_COSTS: Anthropic.Tool = {
 
 // ── Unity Catalog Governance Tools ──────────────────────────────────
 
-export const TOOL_GET_TABLE_LINEAGE: Anthropic.Tool = {
+export const TOOL_GET_TABLE_LINEAGE: Tool = {
   name: 'get_table_lineage',
   description:
     'Get data lineage information for a Unity Catalog table. Returns upstream and downstream dependencies, source tables, and derived views or tables.',
@@ -128,7 +128,7 @@ export const TOOL_GET_TABLE_LINEAGE: Anthropic.Tool = {
   },
 };
 
-export const TOOL_GET_TABLE_PERMISSIONS: Anthropic.Tool = {
+export const TOOL_GET_TABLE_PERMISSIONS: Tool = {
   name: 'get_table_permissions',
   description:
     'Get access permissions and grants for a Unity Catalog table or schema. Returns users, groups, and their permission levels (SELECT, MODIFY, ALL PRIVILEGES).',
@@ -149,7 +149,7 @@ export const TOOL_GET_TABLE_PERMISSIONS: Anthropic.Tool = {
   },
 };
 
-export const TOOL_GET_AUDIT_LOGS: Anthropic.Tool = {
+export const TOOL_GET_AUDIT_LOGS: Tool = {
   name: 'get_audit_logs',
   description:
     'Retrieve Unity Catalog audit logs for compliance and security tracking. Returns access events, modifications, and data operations with timestamps and user information.',
@@ -175,7 +175,7 @@ export const TOOL_GET_AUDIT_LOGS: Anthropic.Tool = {
   },
 };
 
-export const TOOL_GET_DATA_CLASSIFICATION: Anthropic.Tool = {
+export const TOOL_GET_DATA_CLASSIFICATION: Tool = {
   name: 'get_data_classification',
   description:
     'Get data classification and sensitivity tags for Unity Catalog objects. Returns PII indicators, compliance tags (GDPR, HIPAA), and data classification levels.',
@@ -195,7 +195,7 @@ export const TOOL_GET_DATA_CLASSIFICATION: Anthropic.Tool = {
   },
 };
 
-export const TOOL_GET_DATA_QUALITY_METRICS: Anthropic.Tool = {
+export const TOOL_GET_DATA_QUALITY_METRICS: Tool = {
   name: 'get_data_quality_metrics',
   description:
     'Get data quality metrics for Unity Catalog tables including completeness, freshness, validity, and custom quality rules status.',
@@ -216,7 +216,7 @@ export const TOOL_GET_DATA_QUALITY_METRICS: Anthropic.Tool = {
   },
 };
 
-export const TOOL_LIST_GOVERNED_TAGS: Anthropic.Tool = {
+export const TOOL_LIST_GOVERNED_TAGS: Tool = {
   name: 'list_governed_tags',
   description:
     'List all governance tags and their usage across Unity Catalog. Returns tag definitions, assigned objects, and tag hierarchies.',
@@ -239,7 +239,7 @@ export const TOOL_LIST_GOVERNED_TAGS: Anthropic.Tool = {
 
 // ── AI Column Enrichment Tools ────────────────────────────────────────
 
-export const TOOL_GENERATE_COLUMN_DESCRIPTIONS: Anthropic.Tool = {
+export const TOOL_GENERATE_COLUMN_DESCRIPTIONS: Tool = {
   name: 'generate_column_descriptions',
   description:
     'Fetch detailed column metadata and optionally sample data for a Unity Catalog table to support AI-driven description generation. Returns column names, types, existing comments, nullability, and optionally sample values and distinct counts. When include_sample_data is false, only structural metadata is returned (no actual data leaves Databricks).',
@@ -263,7 +263,7 @@ export const TOOL_GENERATE_COLUMN_DESCRIPTIONS: Anthropic.Tool = {
   },
 };
 
-export const TOOL_UPDATE_COLUMN_DESCRIPTIONS: Anthropic.Tool = {
+export const TOOL_UPDATE_COLUMN_DESCRIPTIONS: Tool = {
   name: 'update_column_descriptions',
   description:
     'Write AI-generated descriptions (comments) to columns in a Unity Catalog table. Use this after analyzing column metadata and sample data to apply meaningful descriptions that help users understand each column\'s purpose and content.',
@@ -291,7 +291,7 @@ export const TOOL_UPDATE_COLUMN_DESCRIPTIONS: Anthropic.Tool = {
   },
 };
 
-export const TOOL_UPDATE_COLUMN_TAGS: Anthropic.Tool = {
+export const TOOL_UPDATE_COLUMN_TAGS: Tool = {
   name: 'update_column_tags',
   description:
     'Apply AI-driven classification tags to columns in a Unity Catalog table. Tags can include PII classification (e.g. email, phone, ssn), sensitivity level (public, internal, confidential, restricted), data domain (financial, customer, product, operational), and compliance labels (gdpr, hipaa, pci).',
@@ -324,7 +324,7 @@ export const TOOL_UPDATE_COLUMN_TAGS: Anthropic.Tool = {
 
 // ── Databricks Jobs / Workflows Tools ────────────────────────────────
 
-export const TOOL_GET_JOB_FAILURES: Anthropic.Tool = {
+export const TOOL_GET_JOB_FAILURES: Tool = {
   name: 'get_job_failures',
   description:
     'Analyze Databricks job and workflow failures. Returns recent failed job runs with error messages, failure reasons, duration, and cluster information. Supports filtering by time range and job name.',
@@ -353,7 +353,7 @@ export const TOOL_GET_JOB_FAILURES: Anthropic.Tool = {
   },
 };
 
-export const TOOL_GET_JOB_RUN_LOGS: Anthropic.Tool = {
+export const TOOL_GET_JOB_RUN_LOGS: Tool = {
   name: 'get_job_run_logs',
   description:
     'Fetch detailed logs and output for a specific Databricks job run. Returns driver logs, stderr/stdout, Spark event logs, cluster events, and task-level output. Use this after get_job_failures to drill into a specific failure.',
@@ -378,7 +378,7 @@ export const TOOL_GET_JOB_RUN_LOGS: Anthropic.Tool = {
   },
 };
 
-export const TOOL_GET_JOB_RUN_RCA: Anthropic.Tool = {
+export const TOOL_GET_JOB_RUN_RCA: Tool = {
   name: 'get_job_run_rca',
   description:
     'Perform root cause analysis (RCA) on a failed Databricks job run. Analyzes error messages, log patterns, cluster configuration, historical failure patterns, and provides a structured diagnosis with probable root cause, contributing factors, and step-by-step remediation instructions. Use this after get_job_failures or get_job_run_logs to get actionable fix recommendations.',
@@ -400,7 +400,7 @@ export const TOOL_GET_JOB_RUN_RCA: Anthropic.Tool = {
 
 // ── Tool Collections ────────────────────────────────────────────────
 
-export const ALL_TOOLS: Anthropic.Tool[] = [
+export const ALL_TOOLS: Tool[] = [
   TOOL_GET_SCHEMA_CONTEXT,
   TOOL_EXECUTE_SQL,
   TOOL_SEARCH_TABLES,
@@ -422,8 +422,8 @@ export const ALL_TOOLS: Anthropic.Tool[] = [
 ];
 
 /** Return only the tools usable with the available credentials. */
-export function getAvailableTools(hasAWS: boolean, hasDatabricks: boolean): Anthropic.Tool[] {
-  const tools: Anthropic.Tool[] = [];
+export function getAvailableTools(hasAWS: boolean, hasDatabricks: boolean): Tool[] {
+  const tools: Tool[] = [];
   if (hasDatabricks) {
     tools.push(
       TOOL_GET_SCHEMA_CONTEXT,

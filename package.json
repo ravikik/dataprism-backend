@@ -11,7 +11,6 @@
     "mcp:aws": "tsx server/mcp/aws-server.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
     "@aws-sdk/client-cloudwatch": "^3.999.0",
     "@aws-sdk/client-cost-explorer": "^3.999.0",
     "@aws-sdk/client-ec2": "^3.999.0",

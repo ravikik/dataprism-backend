@@ -9,7 +9,12 @@ const __dirname = path.dirname(__filename);
 const SETTINGS_FILE = path.join(__dirname, '..', '..', '.dataprism-settings.json');
 
 export interface Settings {
-  anthropicApiKey?: string;
+  modelEndpoint?: string;
+  modelName?: string;
+  modelApiKey?: string;
+  modelOAuthTokenUrl?: string;
+  modelOAuthClientId?: string;
+  modelOAuthClientSecret?: string;
   databricks?: {
     host?: string;
     token?: string;
@@ -98,7 +103,12 @@ export async function updateSettings(partialSettings: Partial<Settings>): Promis
 export function getEffectiveSettings(): Settings {
   // In production, prioritize environment variables
   return {
-    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+    modelEndpoint: process.env.MODEL_ENDPOINT,
+    modelName: process.env.MODEL_NAME,
+    modelApiKey: process.env.MODEL_API_KEY,
+    modelOAuthTokenUrl: process.env.MODEL_OAUTH_TOKEN_URL,
+    modelOAuthClientId: process.env.MODEL_OAUTH_CLIENT_ID,
+    modelOAuthClientSecret: process.env.MODEL_OAUTH_CLIENT_SECRET,
     databricks: {
       host: process.env.DATABRICKS_HOST,
       token: process.env.DATABRICKS_TOKEN,
@@ -147,7 +157,12 @@ export function maskSensitiveSettings(settings: Settings): Settings {
   
   return {
     ...settings,
-    anthropicApiKey: mask(settings.anthropicApiKey),
+    modelEndpoint: settings.modelEndpoint,
+    modelName: settings.modelName,
+    modelApiKey: mask(settings.modelApiKey),
+    modelOAuthTokenUrl: settings.modelOAuthTokenUrl,
+    modelOAuthClientId: settings.modelOAuthClientId,
+    modelOAuthClientSecret: mask(settings.modelOAuthClientSecret),
     databricks: settings.databricks ? {
       ...settings.databricks,
       token: mask(settings.databricks.token),

@@ -1,5 +1,4 @@
 import { Router, type Request, type Response } from 'express';
-import Anthropic from '@anthropic-ai/sdk';
 import type { Session } from 'express-session';
 import { getMockSchemaContext, getMockQueryResult, getAllMockSchemaContext } from '../mock-data.js';
 import { ALL_TOOLS, getAvailableTools } from '../mcp/tools.js';
@@ -7,6 +6,10 @@ import { executeToolCall, type ToolCredentials } from '../mcp/executor.js';
 import { getMCPManager, initializeMCP } from '../mcp/mcp-client.js';
 import { answerQuestion } from '../nlp/mock-engine.js';
 import { ensureValidToken, type DatabricksOAuthConfig, type OAuthTokens, type UserInfo } from '../auth/oauth.js';
+import {
+  AIClient, createAIClient,
+  type MessageParam, type TextBlock, type ToolUseBlock,
+} from '../services/ai-client.js';
 
 // Extend Express Request interface
 declare module 'express-serve-static-core' {
@@ -37,7 +40,7 @@ async function getDatabricksCredentials(req: Request): Promise<{ host: string; t
       if (oauthConfig) {
         // Ensure token is valid, refresh if needed
         const validTokens = await ensureValidToken(oauthConfig, req.session.oauthTokens);
-        
+
         // Update session if token was refreshed
         if (validTokens !== req.session.oauthTokens) {
           req.session.oauthTokens = validTokens;
@@ -100,7 +103,7 @@ function getAWSHeaders(req: Request): { accessKey: string; secretKey: string; re
   // Try to get credentials from headers first (for frontend-provided credentials)
   let accessKey = req.headers['x-aws-access-key'] as string;
   let secretKey = req.headers['x-aws-secret-key'] as string;
-  
+
   // Fallback to environment variables if not provided in headers
   if (!accessKey && process.env.AWS_ACCESS_KEY_ID) {
     accessKey = process.env.AWS_ACCESS_KEY_ID;
@@ -108,16 +111,22 @@ function getAWSHeaders(req: Request): { accessKey: string; secretKey: string; re
   if (!secretKey && process.env.AWS_SECRET_ACCESS_KEY) {
     secretKey = process.env.AWS_SECRET_ACCESS_KEY;
   }
-  
+
   if (!accessKey || !secretKey) return null;
   const region = (req.headers['x-aws-region'] as string) || process.env.AWS_REGION || 'us-east-1';
   return { accessKey, secretKey, region };
 }
 
-function getClaudeClient(req: Request, defaultClient: Anthropic | null): Anthropic | null {
-  const runtimeKey = (req.headers['x-anthropic-api-key'] as string)?.trim();
-  if (runtimeKey && runtimeKey.startsWith('sk-ant-')) {
-    return new Anthropic({ apiKey: runtimeKey });
+function getAIClient(req: Request, defaultClient: AIClient | null): AIClient | null {
+  // Priority 1: Runtime endpoint override via headers
+  const runtimeEndpoint = (req.headers['x-model-endpoint'] as string)?.trim();
+  const runtimeToken = (req.headers['authorization'] as string)?.replace(/^Bearer\s+/i, '').trim();
+  if (runtimeEndpoint) {
+    return new AIClient({
+      endpoint: runtimeEndpoint,
+      modelName: process.env.MODEL_NAME || 'default',
+      apiKey: runtimeToken || undefined,
+    });
   }
   return defaultClient;
 }
@@ -125,15 +134,11 @@ function getClaudeClient(req: Request, defaultClient: Anthropic | null): Anthrop
 export function createChatRouter(): Router {
   const router = Router();
 
-  const rawApiKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;
-  const apiKey = rawApiKey?.trim();
-  let defaultClaude: Anthropic | null = null;
-
-  if (apiKey && apiKey.startsWith('sk-ant-')) {
-    defaultClaude = new Anthropic({ apiKey });
-    console.log('[DataPrism] Claude AI initialized');
+  const defaultAI = createAIClient();
+  if (defaultAI) {
+    console.log('[DataPrism] AI model initialized (endpoint:', process.env.MODEL_ENDPOINT, ')');
   } else {
-    console.log('[DataPrism] No API key — running in demo mode (mock NLP engine)');
+    console.log('[DataPrism] No MODEL_ENDPOINT configured — running in demo mode (mock NLP engine)');
   }
 
   // ── MCP Server Mode (Optional) ──────────────────────────────────
@@ -157,14 +162,14 @@ export function createChatRouter(): Router {
 
     if (!question) { res.status(400).json({ error: 'Missing question' }); return; }
 
-    const claude = getClaudeClient(req, defaultClaude);
+    const aiClient = getAIClient(req, defaultAI);
     const dbCreds = await getDatabricksCredentials(req);
     const warehouseId = getDatabricksWarehouseId(req);
     const awsCreds = getAWSHeaders(req);
 
-    // ── Tier 3: No Claude API key → mock NLP engine ──
-    if (!claude) {
-      console.log('[DataPrism] Using mock NLP engine (no API key)');
+    // ── Tier 3: No AI model configured → mock NLP engine ──
+    if (!aiClient) {
+      console.log('[DataPrism] Using mock NLP engine (no model endpoint)');
       const answer = answerQuestion(question);
       res.json({
         type: answer.type,
@@ -177,7 +182,7 @@ export function createChatRouter(): Router {
       return;
     }
 
-    // ── Tier 1 & 2: Claude-powered response ──
+    // ── Tier 1 & 2: AI-powered response ──
     const credentials: ToolCredentials = {
       host: dbCreds?.host,
       token: dbCreds?.token,
@@ -263,10 +268,10 @@ export function createChatRouter(): Router {
 
     // Get current date for context
     const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    const currentDateReadable = new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    const currentDateReadable = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
 
     const systemPrompt = `You are DataPrism AI, an intelligent data platform assistant. You help users explore data, generate SQL queries, and answer analytical questions with strong governance and compliance capabilities.
@@ -324,7 +329,7 @@ Response format — always respond with valid JSON:
   "sql": "SELECT ... (only when type is sql, omit otherwise)"
 }`;
 
-    let messages: Anthropic.MessageParam[] = [
+    let messages: MessageParam[] = [
       ...(history || []).map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
       { role: 'user' as const, content: question },
     ];
@@ -347,14 +352,13 @@ Response format — always respond with valid JSON:
 
         // Force tool usage on first iteration when we have live credentials
         const shouldForceTools = iteration === 0 && hasLiveCredentials && availableTools.length > 0;
-        
-        const response = await claude.messages.create({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 4096,
+
+        const response = await aiClient.createMessage({
           system: systemPrompt,
           messages,
           tools: availableTools,
-          ...(shouldForceTools && { tool_choice: { type: 'any' as const } }),
+          max_tokens: 4096,
+          ...(shouldForceTools && { tool_choice: { type: 'any' } }),
         });
 
         if (shouldForceTools) {
@@ -366,14 +370,14 @@ Response format — always respond with valid JSON:
         modelName = response.model;
 
         const toolUseBlocks = response.content.filter(
-          (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use',
+          (b): b is ToolUseBlock => b.type === 'tool_use',
         );
 
         if (toolUseBlocks.length === 0) {
-          console.log('[DataPrism] No tools called by Claude - returning direct response');
+          console.log('[DataPrism] No tools called - returning direct response');
           const text = response.content
-            .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-            .map(b => b.text)
+            .filter((b): b is TextBlock => b.type === 'text')
+            .map(b => b.text!)
             .join('');
           console.log(`[DataPrism] Final response after ${iteration + 1} iteration(s)`);
 
@@ -423,7 +427,7 @@ Response format — always respond with valid JSON:
 
         const toolResults = await Promise.all(
           toolUseBlocks.map(block =>
-            executeTool(block.name, block.input, block.id),
+            executeTool(block.name!, block.input, block.id!),
           ),
         );
 
@@ -482,8 +486,8 @@ Response format — always respond with valid JSON:
   // ── AI Config Check ─────────────────────────────────────────────
   router.get('/ai/config', (_req: Request, res: Response) => {
     res.json({
-      serverKeyConfigured: !!defaultClaude,
-      mode: defaultClaude ? 'ai' : 'demo',
+      serverKeyConfigured: !!defaultAI,
+      mode: defaultAI ? 'ai' : 'demo',
     });
   });
 

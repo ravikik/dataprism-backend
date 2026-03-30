@@ -322,18 +322,45 @@
       <div class="setting-group">
         <h3>
           <span class="status-indicator red" id="status-ai"></span>
-          Anthropic Claude AI
+          AI Model Configuration
         </h3>
-        <p>Configure your Anthropic API key to enable AI-powered responses. Without this, DataPrism runs in demo mode with mock data.</p>
-        
+        <p>Configure your AI model endpoint with OAuth authentication. Without this, DataPrism runs in demo mode with mock data.</p>
+
         <div class="form-group">
-          <label for="anthropicApiKey">API Key</label>
-          <input type="password" id="anthropicApiKey" placeholder="sk-ant-api03-..." />
-          <small>Get your API key from <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a></small>
+          <label for="modelEndpoint">Model Endpoint URL</label>
+          <input type="text" id="modelEndpoint" placeholder="https://your-model-host.com/v1" />
+          <small>OpenAI-compatible chat completions endpoint (e.g. /v1/chat/completions)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="modelName">Model Name</label>
+          <input type="text" id="modelName" placeholder="gpt-4o, llama-3, custom-model" />
+          <small>Model identifier sent in the request body</small>
+        </div>
+
+        <div class="form-group">
+          <label for="modelApiKey">API Key (optional if using OAuth)</label>
+          <input type="password" id="modelApiKey" placeholder="Bearer token or API key" />
+          <small>Static API key — used as fallback when OAuth is not configured</small>
+        </div>
+
+        <div class="form-group">
+          <label for="modelOAuthTokenUrl">OAuth Token URL</label>
+          <input type="text" id="modelOAuthTokenUrl" placeholder="https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token" />
+        </div>
+
+        <div class="form-group">
+          <label for="modelOAuthClientId">OAuth Client ID</label>
+          <input type="text" id="modelOAuthClientId" placeholder="client-id" />
+        </div>
+
+        <div class="form-group">
+          <label for="modelOAuthClientSecret">OAuth Client Secret</label>
+          <input type="password" id="modelOAuthClientSecret" placeholder="client-secret" />
         </div>
 
         <div class="button-group">
-          <button class="btn btn-test" onclick="testConnection('anthropic')">Test Connection</button>
+          <button class="btn btn-test" onclick="testConnection('model')">Test Connection</button>
           <button class="btn btn-primary" onclick="saveAISettings()">Save AI Settings</button>
         </div>
       </div>
@@ -618,7 +645,12 @@
         ]);
 
         // Populate form fields
-        document.getElementById('anthropicApiKey').value = settings.anthropicApiKey || '';
+        document.getElementById('modelEndpoint').value = settings.modelEndpoint || '';
+        document.getElementById('modelName').value = settings.modelName || '';
+        document.getElementById('modelApiKey').value = settings.modelApiKey || '';
+        document.getElementById('modelOAuthTokenUrl').value = settings.modelOAuthTokenUrl || '';
+        document.getElementById('modelOAuthClientId').value = settings.modelOAuthClientId || '';
+        document.getElementById('modelOAuthClientSecret').value = settings.modelOAuthClientSecret || '';
         document.getElementById('databricksHost').value = settings.databricks?.host || '';
         document.getElementById('databricksToken').value = settings.databricks?.token || '';
         document.getElementById('databricksWarehouse').value = settings.databricks?.warehouseId || '';
@@ -646,7 +678,7 @@
         document.getElementById('sessionSecret').value = settings.server?.sessionSecret || '';
 
         // Update status indicators
-        updateStatusIndicator('status-ai', status.hasAnthropicKey);
+        updateStatusIndicator('status-ai', status.hasModelEndpoint);
         updateStatusIndicator('status-databricks', status.hasDatabricks);
         updateStatusIndicator('status-aws', status.hasAWS);
         updateStatusIndicator('status-oauth', status.hasOAuth);
@@ -672,8 +704,8 @@
     function updateStatusBanner(tier) {
       const banner = document.getElementById('statusBanner');
       const messages = {
-        tier1: { icon: '✅', title: 'Tier 1: Full Mode', desc: 'Claude AI + Databricks + AWS - All features enabled', class: 'tier1' },
-        tier2: { icon: '⚡', title: 'Tier 2: AI Mode', desc: 'Claude AI enabled - Using mock data for queries', class: 'tier2' },
+        tier1: { icon: '✅', title: 'Tier 1: Full Mode', desc: 'AI Model + Databricks + AWS - All features enabled', class: 'tier1' },
+        tier2: { icon: '⚡', title: 'Tier 2: AI Mode', desc: 'AI Model enabled - Using mock data for queries', class: 'tier2' },
         tier3: { icon: '⚠️', title: 'Tier 3: Demo Mode', desc: 'No API keys configured - Using mock NLP engine', class: 'tier3' }
       };
 
@@ -696,7 +728,12 @@
 
     async function saveAISettings() {
       const settings = {
-        anthropicApiKey: document.getElementById('anthropicApiKey').value
+        modelEndpoint: document.getElementById('modelEndpoint').value,
+        modelName: document.getElementById('modelName').value,
+        modelApiKey: document.getElementById('modelApiKey').value,
+        modelOAuthTokenUrl: document.getElementById('modelOAuthTokenUrl').value,
+        modelOAuthClientId: document.getElementById('modelOAuthClientId').value,
+        modelOAuthClientSecret: document.getElementById('modelOAuthClientSecret').value,
       };
 
       await saveSettings(settings, 'AI settings');
@@ -807,7 +844,7 @@
 
     async function testConnection(type) {
       const configs = {
-        anthropic: { apiKey: document.getElementById('anthropicApiKey').value },
+        model: { endpoint: document.getElementById('modelEndpoint').value },
         databricks: {
           host: document.getElementById('databricksHost').value,
           token: document.getElementById('databricksToken').value,

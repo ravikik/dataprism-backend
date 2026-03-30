@@ -27,7 +27,7 @@ export function createSettingsRouter() {
     try {
       const settings = getEffectiveSettings();
       res.json({
-        hasAnthropicKey: !!settings.anthropicApiKey,
+        hasModelEndpoint: !!settings.modelEndpoint,
         hasDatabricks: !!(settings.databricks?.host && settings.databricks?.token),
         hasAWS: !!(settings.aws?.accessKeyId && settings.aws?.secretAccessKey),
         hasOAuth: !!(settings.oauth?.clientId && settings.oauth?.clientSecret),
@@ -77,15 +77,20 @@ export function createSettingsRouter() {
     
     try {
       switch (type) {
-        case 'anthropic':
-          // Test Anthropic API key
-          const apiKey = config.apiKey;
-          if (!apiKey) {
-            return res.status(400).json({ error: 'API key is required' });
+        case 'model': {
+          // Test model endpoint connectivity
+          const endpoint = config.endpoint;
+          if (!endpoint) {
+            return res.status(400).json({ error: 'Model endpoint URL is required' });
           }
-          // Simple validation - actual test would require making an API call
-          const isValid = apiKey.startsWith('sk-ant-');
-          return res.json({ success: isValid, message: isValid ? 'Valid API key format' : 'Invalid API key format' });
+          // Validate URL format
+          try {
+            new URL(endpoint);
+          } catch {
+            return res.json({ success: false, message: 'Invalid endpoint URL format' });
+          }
+          return res.json({ success: true, message: 'Endpoint URL format valid' });
+        }
 
         case 'databricks':
           // Test Databricks connection
@@ -141,7 +146,7 @@ export function createSettingsRouter() {
  * Determine operational tier based on configured services
  */
 function getTier(settings: any): 'tier1' | 'tier2' | 'tier3' {
-  const hasAI = !!settings.anthropicApiKey;
+  const hasAI = !!settings.modelEndpoint;
   const hasDB = !!(settings.databricks?.host && settings.databricks?.token);
   const hasAWS = !!(settings.aws?.accessKeyId && settings.aws?.secretAccessKey);
 
