@@ -2,13 +2,16 @@
  * Custom AI Client — connects to an OpenAI-compatible model endpoint with OAuth.
  *
  * Environment variables:
- *   MODEL_ENDPOINT        – base URL, e.g. https://my-org.openai.azure.com/v1
- *   MODEL_NAME            – model id, e.g. gpt-4o, llama-3, custom-model
- *   MODEL_OAUTH_TOKEN_URL – OAuth token endpoint
- *   MODEL_OAUTH_CLIENT_ID – OAuth client ID
- *   MODEL_OAUTH_CLIENT_SECRET – OAuth client secret
- *   MODEL_OAUTH_SCOPE     – OAuth scope (optional, defaults to "api")
- *   MODEL_API_KEY          – fallback static API key (when not using OAuth)
+ *   AI_PLATFORM_BASE_URL        – base URL, e.g. https://api.chat.eai-qa.toyota.com
+ *   AI_PLATFORM_COMPLETIONS_URL – full completions URL (overrides base + /chat/completions)
+ *   AI_PLATFORM_UPLOAD_URL      – file upload endpoint (optional)
+ *   AI_PLATFORM_SSE_URL         – server-sent events endpoint (optional)
+ *   AI_PLATFORM_DEFAULT_MODEL   – model id, e.g. claude-haiku-4.5
+ *   AI_PLATFORM_TOKEN_URL       – OAuth token endpoint
+ *   AI_PLATFORM_CLIENT_ID       – OAuth client ID
+ *   AI_PLATFORM_CLIENT_SECRET   – OAuth client secret
+ *   AI_PLATFORM_SCOPE           – OAuth scope (optional, defaults to "api")
+ *   AI_PLATFORM_API_KEY         – fallback static API key (when not using OAuth)
  */
 
 // ── Types (OpenAI-compatible) ──────────────────────────────────────
@@ -75,7 +78,8 @@ interface OAuthTokenCache {
 // ── Client ─────────────────────────────────────────────────────────
 
 export class AIClient {
-  private endpoint: string;
+  private baseUrl: string;
+  private completionsUrl: string;
   private modelName: string;
   private tokenUrl?: string;
   private clientId?: string;
@@ -85,7 +89,8 @@ export class AIClient {
   private cachedToken: OAuthTokenCache | null = null;
 
   constructor(config: {
-    endpoint: string;
+    baseUrl: string;
+    completionsUrl?: string;
     modelName?: string;
     tokenUrl?: string;
     clientId?: string;
@@ -93,7 +98,8 @@ export class AIClient {
     scope?: string;
     apiKey?: string;
   }) {
-    this.endpoint = config.endpoint.replace(/\/+$/, '');
+    this.baseUrl = config.baseUrl.replace(/\/+$/, '');
+    this.completionsUrl = config.completionsUrl || `${this.baseUrl}/chat/completions`;
     this.modelName = config.modelName || 'default';
     this.tokenUrl = config.tokenUrl;
     this.clientId = config.clientId;
@@ -116,7 +122,7 @@ export class AIClient {
     }
 
     if (!this.tokenUrl || !this.clientId || !this.clientSecret) {
-      throw new Error('OAuth configuration incomplete: MODEL_OAUTH_TOKEN_URL, MODEL_OAUTH_CLIENT_ID, and MODEL_OAUTH_CLIENT_SECRET are required');
+      throw new Error('OAuth configuration incomplete: AI_PLATFORM_TOKEN_URL, AI_PLATFORM_CLIENT_ID, and AI_PLATFORM_CLIENT_SECRET are required');
     }
 
     console.log('[AIClient] Requesting OAuth token...');
@@ -177,7 +183,7 @@ export class AIClient {
       requestBody.tool_choice = params.tool_choice.type === 'any' ? 'required' : params.tool_choice.type;
     }
 
-    const response = await fetch(`${this.endpoint}/chat/completions`, {
+    const response = await fetch(this.completionsUrl, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -291,19 +297,21 @@ export class AIClient {
 // ── Factory ────────────────────────────────────────────────────────
 
 export function createAIClient(overrides?: {
-  endpoint?: string;
+  baseUrl?: string;
+  completionsUrl?: string;
   apiKey?: string;
 }): AIClient | null {
-  const endpoint = overrides?.endpoint || process.env.MODEL_ENDPOINT;
-  if (!endpoint) return null;
+  const baseUrl = overrides?.baseUrl || process.env.AI_PLATFORM_BASE_URL;
+  if (!baseUrl) return null;
 
   return new AIClient({
-    endpoint,
-    modelName: process.env.MODEL_NAME || 'default',
-    tokenUrl: process.env.MODEL_OAUTH_TOKEN_URL,
-    clientId: process.env.MODEL_OAUTH_CLIENT_ID,
-    clientSecret: process.env.MODEL_OAUTH_CLIENT_SECRET,
-    scope: process.env.MODEL_OAUTH_SCOPE || 'api',
-    apiKey: overrides?.apiKey || process.env.MODEL_API_KEY,
+    baseUrl,
+    completionsUrl: overrides?.completionsUrl || process.env.AI_PLATFORM_COMPLETIONS_URL,
+    modelName: process.env.AI_PLATFORM_DEFAULT_MODEL || 'default',
+    tokenUrl: process.env.AI_PLATFORM_TOKEN_URL,
+    clientId: process.env.AI_PLATFORM_CLIENT_ID,
+    clientSecret: process.env.AI_PLATFORM_CLIENT_SECRET,
+    scope: process.env.AI_PLATFORM_SCOPE || 'api',
+    apiKey: overrides?.apiKey || process.env.AI_PLATFORM_API_KEY,
   });
 }

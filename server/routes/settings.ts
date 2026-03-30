@@ -27,7 +27,7 @@ export function createSettingsRouter() {
     try {
       const settings = getEffectiveSettings();
       res.json({
-        hasModelEndpoint: !!settings.modelEndpoint,
+        hasModelEndpoint: !!settings.aiPlatformBaseUrl,
         hasDatabricks: !!(settings.databricks?.host && settings.databricks?.token),
         hasAWS: !!(settings.aws?.accessKeyId && settings.aws?.secretAccessKey),
         hasOAuth: !!(settings.oauth?.clientId && settings.oauth?.clientSecret),
@@ -146,7 +146,7 @@ export function createSettingsRouter() {
  * Determine operational tier based on configured services
  */
 function getTier(settings: any): 'tier1' | 'tier2' | 'tier3' {
-  const hasAI = !!settings.modelEndpoint;
+  const hasAI = !!settings.aiPlatformBaseUrl;
   const hasDB = !!(settings.databricks?.host && settings.databricks?.token);
   const hasAWS = !!(settings.aws?.accessKeyId && settings.aws?.secretAccessKey);
 

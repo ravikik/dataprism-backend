@@ -123,8 +123,8 @@ function getAIClient(req: Request, defaultClient: AIClient | null): AIClient | n
   const runtimeToken = (req.headers['authorization'] as string)?.replace(/^Bearer\s+/i, '').trim();
   if (runtimeEndpoint) {
     return new AIClient({
-      endpoint: runtimeEndpoint,
-      modelName: process.env.MODEL_NAME || 'default',
+      baseUrl: runtimeEndpoint,
+      modelName: process.env.AI_PLATFORM_DEFAULT_MODEL || 'default',
       apiKey: runtimeToken || undefined,
     });
   }
@@ -136,9 +136,9 @@ export function createChatRouter(): Router {
 
   const defaultAI = createAIClient();
   if (defaultAI) {
-    console.log('[DataPrism] AI model initialized (endpoint:', process.env.MODEL_ENDPOINT, ')');
+    console.log('[DataPrism] AI Platform initialized (base:', process.env.AI_PLATFORM_BASE_URL, ')');
   } else {
-    console.log('[DataPrism] No MODEL_ENDPOINT configured — running in demo mode (mock NLP engine)');
+    console.log('[DataPrism] No AI_PLATFORM_BASE_URL configured — running in demo mode (mock NLP engine)');
   }
 
   // ── MCP Server Mode (Optional) ──────────────────────────────────

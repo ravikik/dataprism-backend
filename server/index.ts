@@ -58,7 +58,7 @@ app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    aiConfigured: !!process.env.MODEL_ENDPOINT,
+    aiConfigured: !!process.env.AI_PLATFORM_BASE_URL,
     oauthConfigured: !!(process.env.DATABRICKS_OAUTH_CLIENT_ID && process.env.DATABRICKS_OAUTH_CLIENT_SECRET),
   });
 });
@@ -66,6 +66,7 @@ app.get('/api/health', (_req, res) => {
 app.listen(PORT, () => {
   console.log(`[DataPrism] Server running on http://localhost:${PORT}`);
   console.log(`[DataPrism] Settings UI: http://localhost:${PORT}/admin/settings`);
-  console.log(`[DataPrism] AI mode: ${process.env.MODEL_ENDPOINT ? `Custom model (${process.env.MODEL_ENDPOINT})` : 'Demo (mock NLP)'}`);
+  console.log(`[DataPrism] AI mode: ${process.env.AI_PLATFORM_BASE_URL ? `AI Platform (${process.env.AI_PLATFORM_BASE_URL})` : 'Demo (mock NLP)'}`);
+  console.log(`[DataPrism] AI model: ${process.env.AI_PLATFORM_DEFAULT_MODEL || 'not configured'}`);
   console.log(`[DataPrism] OAuth: ${process.env.DATABRICKS_OAUTH_CLIENT_ID ? 'Enabled' : 'Disabled (using PAT fallback)'}`);
 });

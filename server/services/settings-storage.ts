@@ -9,12 +9,16 @@ const __dirname = path.dirname(__filename);
 const SETTINGS_FILE = path.join(__dirname, '..', '..', '.dataprism-settings.json');
 
 export interface Settings {
-  modelEndpoint?: string;
-  modelName?: string;
-  modelApiKey?: string;
-  modelOAuthTokenUrl?: string;
-  modelOAuthClientId?: string;
-  modelOAuthClientSecret?: string;
+  aiPlatformBaseUrl?: string;
+  aiPlatformCompletionsUrl?: string;
+  aiPlatformUploadUrl?: string;
+  aiPlatformSseUrl?: string;
+  aiPlatformDefaultModel?: string;
+  aiPlatformApiKey?: string;
+  aiPlatformTokenUrl?: string;
+  aiPlatformClientId?: string;
+  aiPlatformClientSecret?: string;
+  aiPlatformScope?: string;
   databricks?: {
     host?: string;
     token?: string;
@@ -103,12 +107,16 @@ export async function updateSettings(partialSettings: Partial<Settings>): Promis
 export function getEffectiveSettings(): Settings {
   // In production, prioritize environment variables
   return {
-    modelEndpoint: process.env.MODEL_ENDPOINT,
-    modelName: process.env.MODEL_NAME,
-    modelApiKey: process.env.MODEL_API_KEY,
-    modelOAuthTokenUrl: process.env.MODEL_OAUTH_TOKEN_URL,
-    modelOAuthClientId: process.env.MODEL_OAUTH_CLIENT_ID,
-    modelOAuthClientSecret: process.env.MODEL_OAUTH_CLIENT_SECRET,
+    aiPlatformBaseUrl: process.env.AI_PLATFORM_BASE_URL,
+    aiPlatformCompletionsUrl: process.env.AI_PLATFORM_COMPLETIONS_URL,
+    aiPlatformUploadUrl: process.env.AI_PLATFORM_UPLOAD_URL,
+    aiPlatformSseUrl: process.env.AI_PLATFORM_SSE_URL,
+    aiPlatformDefaultModel: process.env.AI_PLATFORM_DEFAULT_MODEL,
+    aiPlatformApiKey: process.env.AI_PLATFORM_API_KEY,
+    aiPlatformTokenUrl: process.env.AI_PLATFORM_TOKEN_URL,
+    aiPlatformClientId: process.env.AI_PLATFORM_CLIENT_ID,
+    aiPlatformClientSecret: process.env.AI_PLATFORM_CLIENT_SECRET,
+    aiPlatformScope: process.env.AI_PLATFORM_SCOPE,
     databricks: {
       host: process.env.DATABRICKS_HOST,
       token: process.env.DATABRICKS_TOKEN,
@@ -157,12 +165,16 @@ export function maskSensitiveSettings(settings: Settings): Settings {
   
   return {
     ...settings,
-    modelEndpoint: settings.modelEndpoint,
-    modelName: settings.modelName,
-    modelApiKey: mask(settings.modelApiKey),
-    modelOAuthTokenUrl: settings.modelOAuthTokenUrl,
-    modelOAuthClientId: settings.modelOAuthClientId,
-    modelOAuthClientSecret: mask(settings.modelOAuthClientSecret),
+    aiPlatformBaseUrl: settings.aiPlatformBaseUrl,
+    aiPlatformCompletionsUrl: settings.aiPlatformCompletionsUrl,
+    aiPlatformUploadUrl: settings.aiPlatformUploadUrl,
+    aiPlatformSseUrl: settings.aiPlatformSseUrl,
+    aiPlatformDefaultModel: settings.aiPlatformDefaultModel,
+    aiPlatformApiKey: mask(settings.aiPlatformApiKey),
+    aiPlatformTokenUrl: settings.aiPlatformTokenUrl,
+    aiPlatformClientId: settings.aiPlatformClientId,
+    aiPlatformClientSecret: mask(settings.aiPlatformClientSecret),
+    aiPlatformScope: settings.aiPlatformScope,
     databricks: settings.databricks ? {
       ...settings.databricks,
       token: mask(settings.databricks.token),
